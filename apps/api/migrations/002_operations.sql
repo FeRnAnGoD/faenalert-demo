@@ -1,0 +1,12 @@
+CREATE TABLE meetings (id uuid PRIMARY KEY DEFAULT gen_random_uuid(),site_id uuid NOT NULL REFERENCES sites,title text NOT NULL,scheduled_at timestamptz NOT NULL,location text NOT NULL,agenda text NOT NULL DEFAULT '',version integer NOT NULL DEFAULT 1,created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE minutes (id uuid PRIMARY KEY DEFAULT gen_random_uuid(),site_id uuid NOT NULL REFERENCES sites,title text NOT NULL,content text NOT NULL,status text NOT NULL DEFAULT 'DRAFT' CHECK(status IN ('DRAFT','IN_REVIEW')),version integer NOT NULL DEFAULT 1,created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE trainings (id uuid PRIMARY KEY DEFAULT gen_random_uuid(),site_id uuid NOT NULL REFERENCES sites,title text NOT NULL,scheduled_at timestamptz NOT NULL,instructor text NOT NULL,description text NOT NULL,version integer NOT NULL DEFAULT 1,created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE commissions (id uuid PRIMARY KEY DEFAULT gen_random_uuid(),site_id uuid NOT NULL REFERENCES sites,title text NOT NULL,objective text NOT NULL,version integer NOT NULL DEFAULT 1,created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE incidents (id uuid PRIMARY KEY DEFAULT gen_random_uuid(),site_id uuid NOT NULL REFERENCES sites,title text NOT NULL,occurred_at timestamptz NOT NULL,location text NOT NULL,facts text NOT NULL,kind text NOT NULL CHECK(kind IN ('INCIDENT','ACCIDENT','OBSERVATION')),version integer NOT NULL DEFAULT 1,created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE documents (id uuid PRIMARY KEY DEFAULT gen_random_uuid(),site_id uuid NOT NULL REFERENCES sites,title text NOT NULL,description text NOT NULL,version integer NOT NULL DEFAULT 1,created_at timestamptz NOT NULL DEFAULT now());
+CREATE INDEX meetings_site ON meetings(site_id,created_at DESC);
+CREATE INDEX minutes_site ON minutes(site_id,created_at DESC);
+CREATE INDEX trainings_site ON trainings(site_id,created_at DESC);
+CREATE INDEX commissions_site ON commissions(site_id,created_at DESC);
+CREATE INDEX incidents_site ON incidents(site_id,created_at DESC);
+CREATE INDEX documents_site ON documents(site_id,created_at DESC);

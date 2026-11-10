@@ -1,0 +1,78 @@
+# JavaScript / Angular / NestJS
+node_modules/
+**/node_modules/
+.pnpm-store/
+dist/
+**/dist/
+.angular/
+**/.angular/
+coverage/
+**/coverage/
+.cache/
+**/.cache/
+*.tsbuildinfo
+**/*.tsbuildinfo
+*.log
+**/*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local configuration and secrets
+.env
+.env.*
+**/.env
+**/.env.*
+!**/.env.example
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+apps/*/.env
+apps/*/.env.*
+!apps/**/.env.example
+
+# Certificates and credentials
+*.pem
+*.key
+*.p12
+*.pfx
+*service-account*.json
+*credentials*.json
+**/*service-account*.json
+**/*credentials*.json
+
+# Docker and database persistence / backups
+postgres_data/
+**/postgres_data/
+backups/
+/backups/
+*.dump
+*.sql.bak
+
+# Vercel and desktop build output
+.vercel/
+**/.vercel/
+**/src-tauri/target/
+**/src-tauri/gen/
+target/
+**/target/
+
+# IDE and operating system
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Temporary research and local exports
+tmp/
+/tmp/
+output/
+/output/
+/test-results/
+test-results/
+qa_*/

@@ -1,0 +1,24 @@
+{
+  "name": "faenalert-platform",
+  "private": true,
+  "packageManager": "pnpm@11.25.0",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel --filter @faenalert/api --filter faenalert-frontend start",
+    "build": "pnpm -r build",
+    "db:up": "docker compose up -d --wait db",
+    "db:down": "docker compose stop db",
+    "db:migrate": "pnpm --filter @faenalert/api db:migrate",
+    "db:seed": "pnpm --filter @faenalert/api db:seed",
+    "test": "pnpm --filter @faenalert/api test",
+    "test:web": "pnpm --filter @faenalert/api exec tsx --test ../web/test/*.test.ts",
+    "test:e2e": "pnpm --filter @faenalert/api test:e2e",
+    "verify": "pnpm build && pnpm test && pnpm test:web && pnpm --filter @faenalert/api test:integration && pnpm test:e2e"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.0",
+    "prettier": "^3.9.10"
+  }
+}

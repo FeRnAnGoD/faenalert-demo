@@ -1,0 +1,456 @@
+<div
+  class="prevention-app"
+  [class.authenticated]="!!token()"
+  [class.embedded]="embedded"
+>
+  @if (token()&&!embedded) {
+  <fa-workspace-nav />
+  }
+  <main class="workspace">
+    @if (!token()) {
+    <fa-login-screen
+      [busy]="busy()"
+      [error]="error()"
+      [email]="email"
+      (credentials)="login($event)"
+    />
+    } @else { @if(!embedded){
+    <header class="page-header">
+      <div>
+        <span class="eyebrow">GESTIÓN PREVENTIVA</span>
+        <h1>Del hallazgo a la acción<span>.</span></h1>
+        <p>
+          Observa, asigna y verifica. Cada compromiso tiene un siguiente paso.
+        </p>
+      </div>
+      @if(canWrite()&&site){<button
+        class="primary"
+        [disabled]="busy()"
+        (click)="showCreate=!showCreate"
+      >
+        {{showCreate?'Cerrar formulario':'＋ Nueva inspección'}}</button
+      >}
+      <button class="secondary" [disabled]="busy()" (click)="logout()">
+        <fa-icon name="logout" /> Cerrar sesión
+      </button>
+    </header>
+    <section class="context-bar" aria-label="Contexto de trabajo">
+      <div class="context-icon"><fa-icon name="building" /></div>
+      <label
+        >EMPRESA · FAENA<select
+          [(ngModel)]="site"
+          [disabled]="busy()"
+          (ngModelChange)="changeSite()"
+        >
+          <option value="">Selecciona una faena</option>
+          @for(s of sites();track s.id){
+          <option [value]="s.id">{{s.organization_name}} · {{s.name}}</option>
+          }
+        </select></label
+      >
+      <span class="context-caption"
+        >{{canWrite() ? 'Gestión y seguimiento' : site ? 'Acceso de solo
+        lectura' : 'Elige dónde trabajar'}}</span
+      >
+    </section>
+    } @if(embedded){
+    <div class="demo-boundary">
+      <fa-icon name="shield" /><span
+        ><strong>Flujo preventivo de demostración</strong
+        ><small
+          >Usa datos ficticios; no ingreses datos personales, de salud ni
+          documentos reales.</small
+        ></span
+      >
+    </div>
+    } @if(site){
+    <section class="metrics" aria-label="Resumen de prevención">
+      <div>
+        <span class="metric-icon"><fa-icon name="file" /></span>
+        <p><strong>{{total}}</strong><span>Inspecciones en la faena</span></p>
+      </div>
+      <div>
+        <span class="metric-icon orange"><fa-icon name="alert" /></span>
+        <p>
+          <strong>{{detail()?.findingsPage?.total ?? '—'}}</strong
+          ><span>Hallazgos en la inspección abierta</span>
+        </p>
+      </div>
+      <div>
+        <span class="metric-icon"><fa-icon name="check" /></span>
+        <p>
+          <strong>{{closedCount()}}<small> / {{actionCount()}}</small></strong
+          ><span>Acciones cerradas en esta inspección</span>
+        </p>
+      </div>
+    </section>
+    <div class="overview" [class.readonly]="!canWrite()||!showCreate">
+      @if(canWrite()&&showCreate){
+      <form class="panel inspection-form" (ngSubmit)="createInspection()">
+        <div class="section-heading">
+          <span class="step">01</span>
+          <div>
+            <h2>Nueva inspección</h2>
+            <p>Registra lo que observaste en terreno.</p>
+          </div>
+        </div>
+        <label
+          >Título<input
+            name="title"
+            [(ngModel)]="title"
+            required
+            maxlength="2000"
+            placeholder="Ej. Revisión del patio de operaciones"
+        /></label>
+        <label
+          >Área<input
+            name="area"
+            [(ngModel)]="area"
+            required
+            placeholder="Sector o lugar de la inspección"
+        /></label>
+        <div class="field-grid">
+          <label
+            >Fecha<input
+              type="date"
+              name="date"
+              [(ngModel)]="date"
+              required /></label
+          ><label
+            >Inspector<select name="inspector" [(ngModel)]="inspector" required>
+              @for(u of users();track u.id){
+              <option [value]="u.id">{{u.name}}</option>
+              }
+            </select></label
+          >
+        </div>
+        <button class="primary wide" [disabled]="busy()">
+          Crear inspección <span aria-hidden="true">＋</span>
+        </button>
+      </form>
+      }
+      <section class="panel inspection-list">
+        <div class="section-heading">
+          <div>
+            <h2>Inspecciones</h2>
+            <p>El trabajo de tu faena, en un solo lugar.</p>
+          </div>
+          <span class="count">{{total}} registros</span>
+        </div>
+        <div class="inspection-items">
+          @for(i of inspections();track i.id){
+          <button
+            class="inspection-row"
+            [class.selected]="detail()?.id===i.id"
+            [disabled]="busy()"
+            (click)="open(i.id)"
+          >
+            <span class="row-icon"><fa-icon name="file" /></span
+            ><span class="row-copy"
+              ><strong>{{i.title}}</strong
+              ><small
+                >{{i.area}} · {{i.inspected_on | date:'dd MMM yyyy'}}</small
+              ></span
+            ><span class="row-arrow" aria-hidden="true">→</span>
+          </button>
+          }@empty{
+          <div class="empty-state">
+            <fa-icon name="file" />
+            <h3>
+              {{busy() ? 'Cargando inspecciones' : 'Todo empieza con una
+              mirada'}}
+            </h3>
+            <p>
+              {{busy() ? 'Estamos preparando los registros de tu faena.' : 'Aquí
+              aparecerán las inspecciones registradas para esta faena.'}}
+            </p>
+          </div>
+          }
+        </div>
+        <div class="pagination">
+          <button
+            class="secondary small"
+            [disabled]="page===1||busy()"
+            (click)="page=page-1;refresh()"
+          >
+            ← Anterior</button
+          ><span>Página {{page}}</span
+          ><button
+            class="secondary small"
+            [disabled]="page*20>=total||busy()"
+            (click)="page=page+1;refresh()"
+          >
+            Siguiente →
+          </button>
+        </div>
+      </section>
+    </div>
+    } @else {
+    <section class="empty-state panel">
+      <fa-icon name="building" />
+      <h2>Tu operación, en contexto</h2>
+      <p>
+        Selecciona una faena para consultar inspecciones y dar seguimiento a sus
+        acciones.
+      </p>
+    </section>
+    } @if(detail();as d){
+    <section class="panel detail-panel">
+      <div class="detail-nav-bar">
+        <button type="button" class="back-nav-btn" (click)="closeDetail()">
+          ← Volver a inspecciones
+        </button>
+        <a routerLink="/gestion" class="back-nav-link"> ← Ir a Resumen </a>
+      </div>
+      <div class="detail-heading">
+        <div>
+          <span class="eyebrow">INSPECCIÓN ABIERTA</span>
+          <h2>{{d.title}}</h2>
+          <p>{{d.area}} · {{d.inspected_on | date:'dd MMM yyyy'}}</p>
+        </div>
+        <span class="count">{{d.findingsPage.total}} hallazgos</span>
+      </div>
+      @if(canWrite()){
+      <form class="finding-form" (ngSubmit)="addFinding()">
+        <label
+          >Hallazgo<textarea
+            name="finding"
+            [(ngModel)]="finding"
+            required
+            placeholder="Describe la condición observada y su ubicación."
+          ></textarea></label
+        ><button class="primary" [disabled]="busy()">
+          Agregar hallazgo ＋
+        </button>
+      </form>
+      }
+      <div class="pagination">
+        <button
+          class="secondary small"
+          [disabled]="findingsPage===1||busy()"
+          (click)="changeFindingsPage(findingsPage-1)"
+        >
+          Hallazgos anteriores</button
+        ><span>Página {{findingsPage}}</span
+        ><button
+          class="secondary small"
+          [disabled]="findingsPage*20>=d.findingsPage.total||busy()"
+          (click)="changeFindingsPage(findingsPage+1)"
+        >
+          Más hallazgos
+        </button>
+      </div>
+      @for(f of d.findings;track f.id;let index=$index){
+      <article class="finding-card">
+        <div class="finding-heading">
+          <span class="step amber">{{index+1}}</span>
+          <div>
+            <span class="eyebrow">HALLAZGO</span>
+            <h3>{{f.description}}</h3>
+          </div>
+        </div>
+        @if(canWrite()){
+        <details class="action-composer">
+          <summary>
+            Asignar una nueva acción <span aria-hidden="true">＋</span>
+          </summary>
+          <form (ngSubmit)="createAction(f.id)">
+            <label
+              >Acción<input
+                name="actionTitle"
+                [(ngModel)]="draftFor(f.id).title"
+                required
+                placeholder="¿Qué medida se debe tomar?"
+            /></label>
+            <div class="field-grid three">
+              <label
+                >Responsable<select
+                  name="owner"
+                  [(ngModel)]="draftFor(f.id).ownerId"
+                  required
+                >
+                  @for(u of owners();track u.id){
+                  <option [value]="u.id">{{u.name}}</option>
+                  }
+                </select></label
+              ><label
+                >Fecha comprometida<input
+                  type="date"
+                  name="due"
+                  [(ngModel)]="draftFor(f.id).dueOn"
+                  required /></label
+              ><label
+                >Prioridad<select
+                  name="priority"
+                  [(ngModel)]="draftFor(f.id).priority"
+                >
+                  <option value="HIGH">Alta</option>
+                  <option value="MEDIUM">Media</option>
+                  <option value="LOW">Baja</option>
+                </select></label
+              >
+            </div>
+            <button class="primary" [disabled]="busy()">Crear acción</button>
+          </form>
+        </details>
+        }
+        <div class="pagination">
+          <button
+            class="secondary small"
+            [disabled]="(actionPages[f.id]??1)===1||busy()"
+            (click)="loadActions(f,(actionPages[f.id]??1)-1)"
+          >
+            Acciones anteriores</button
+          ><span
+            >{{f.actions_total}} acciones · Página
+            {{actionPages[f.id]??1}}</span
+          ><button
+            class="secondary small"
+            [disabled]="(actionPages[f.id]??1)*20>=f.actions_total||busy()"
+            (click)="loadActions(f,(actionPages[f.id]??1)+1)"
+          >
+            Más acciones
+          </button>
+        </div>
+        @for(a of f.actions;track a.id){
+        <div class="action" [class.closed]="a.status==='CLOSED'">
+          <div class="action-heading">
+            <div>
+              <h4>{{a.title}}</h4>
+              <p>
+                Responsable: {{userName(a.owner_id)}} · Entrega {{a.due_on |
+                date:'dd MMM yyyy'}}
+              </p>
+            </div>
+            <span class="status" [attr.data-status]="a.status"
+              >{{statusLabel(a.status)}}</span
+            >
+          </div>
+          @if(canWrite()){ @if(a.status==='PENDING'){<button
+            class="primary small"
+            [disabled]="busy()"
+            (click)="transition(a,'IN_PROGRESS')"
+          >
+            Iniciar acción →</button
+          >} @if(a.status!=='CLOSED'){
+          <label
+            >Evidencia de avance<textarea
+              [name]="'evidence-' + a.id"
+              [(ngModel)]="evidenceDrafts[a.id]"
+              placeholder="Describe el avance o la evidencia disponible."
+            ></textarea>
+          </label>
+          <div class="action-buttons">
+            <button
+              class="secondary small"
+              [disabled]="busy()||!evidenceDrafts[a.id]?.trim()"
+              (click)="evidence(a,evidenceDrafts[a.id])"
+            >
+              Guardar evidencia
+            </button>
+            @if(a.status==='IN_PROGRESS'){<button
+              class="primary small"
+              [disabled]="busy()"
+              (click)="transition(a,'PENDING_VERIFICATION')"
+            >
+              Solicitar verificación →</button
+            >}
+          </div>
+          } } @if(canReview()&&a.status==='PENDING_VERIFICATION'){
+          <label
+            >Observación de revisión<textarea
+              [name]="'review-' + a.id"
+              [(ngModel)]="reviewDrafts[a.id]"
+              placeholder="Registra el criterio para aprobar o devolver la acción."
+            ></textarea>
+          </label>
+          <div class="action-buttons">
+            <button
+              class="primary small"
+              [disabled]="busy()||!reviewDrafts[a.id]?.trim()"
+              (click)="verify(a,true,reviewDrafts[a.id])"
+            >
+              Verificar y cerrar ✓</button
+            ><button
+              class="secondary small"
+              [disabled]="busy()||!reviewDrafts[a.id]?.trim()"
+              (click)="verify(a,false,reviewDrafts[a.id])"
+            >
+              Devolver al responsable
+            </button>
+          </div>
+          }
+          <button
+            class="text-action"
+            [disabled]="busy()"
+            (click)="showEvidence(a.id)"
+          >
+            Consultar evidencias →
+          </button>
+        </div>
+        }@empty{
+        <p class="muted no-actions">
+          Este hallazgo aún no tiene acciones asignadas.
+        </p>
+        }
+      </article>
+      }@empty{
+      <p class="muted">Aún no hay hallazgos en esta inspección.</p>
+      }
+    </section>
+    } @if(evidenceAction){
+    <section class="panel evidence-panel">
+      <div class="section-heading">
+        <span class="step"><fa-icon name="check" /></span>
+        <div>
+          <h2>Evidencias registradas</h2>
+          <p>El respaldo de cada avance.</p>
+        </div>
+      </div>
+      <div class="pagination">
+        <button
+          class="secondary small"
+          [disabled]="evidencePage===1||busy()"
+          (click)="showEvidence(evidenceAction,evidencePage-1)"
+        >
+          Anterior</button
+        ><span>Página {{evidencePage}} · {{evidenceTotal}} evidencias</span
+        ><button
+          class="secondary small"
+          [disabled]="evidencePage*20>=evidenceTotal||busy()"
+          (click)="showEvidence(evidenceAction,evidencePage+1)"
+        >
+          Siguiente
+        </button>
+      </div>
+      @for(e of evidenceNotes();track e.id){
+      <blockquote>
+        <p>{{e.note}}</p>
+        <small
+          >{{userName(e.author_id)}} · {{e.created_at | date:'dd MMM yyyy,
+          HH:mm'}}</small
+        >
+      </blockquote>
+      }
+    </section>
+    } } @if(!embedded){
+    <footer class="page-footer">
+      <span>FAENALERT <i>·</i> Personas seguras, operaciones resilientes.</span
+      ><span>Desarrollo local · Datos de prueba</span>
+    </footer>
+    } @if(busy()){
+    <div role="status" class="feedback loading">
+      <span class="spinner"></span> Procesando solicitud…
+    </div>
+    } @if(error()){
+    <div role="alert" class="feedback error">
+      <fa-icon name="alert" /><span>{{error()}}</span
+      ><button aria-label="Cerrar aviso" (click)="error.set('')">×</button>
+    </div>
+    } @if(message()){
+    <div role="status" class="feedback success">
+      <fa-icon name="check" />{{message()}}
+    </div>
+    }
+  </main>
+</div>

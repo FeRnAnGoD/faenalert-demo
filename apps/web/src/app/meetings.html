@@ -1,0 +1,493 @@
+<div class="prevention-app" [class.authenticated]="!!token()">
+  @if (token()) {
+    <fa-workspace-nav />
+  }
+  <main class="workspace">
+    <header class="page-header" [hidden]="!token()">
+      <div>
+        <span class="eyebrow">CONTINUIDAD DEL COMITÉ</span>
+        <h1>Reunir, acordar, avanzar<span>.</span></h1>
+        <p>Actas y compromisos con responsable, contexto e historia.</p>
+      </div>
+      @if(token()){<button
+        class="secondary"
+        type="button"
+        [disabled]="busy()"
+        (click)="logout()"
+      >
+        Cerrar sesión</button
+      >}
+    </header>
+    @if(!token()){
+      <fa-login-screen
+        [busy]="busy()"
+        [error]="error()"
+        [email]="email"
+        (credentials)="login($event)"
+      />
+    }@else{
+    <section class="context-bar">
+      <label
+        >EMPRESA · FAENA<select
+          [ngModel]="site"
+          [disabled]="busy()"
+          (ngModelChange)="selectSite($event)"
+        >
+          <option value="">Selecciona una faena</option>
+          @for(s of sites();track s.id){
+          <option [value]="s.id">{{s.organization_name}} · {{s.name}}</option>
+          }
+        </select></label
+      ><span class="context-caption"
+        >{{canWrite()?'Gestión de reuniones':'Solo consulta'}}</span
+      >
+    </section>
+    @if(site){
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <h2>Reuniones del comité</h2>
+          <p>
+            {{total}} registros · Selecciona una reunión para consultar su
+            expediente.
+          </p>
+        </div>
+        @if(canWrite()){<button
+          class="primary"
+          [disabled]="busy()"
+          (click)="showCreate=!showCreate"
+        >
+          {{showCreate?'Cerrar formulario':'＋ Programar reunión'}}</button
+        >}
+      </div>
+      @if(showCreate&&canWrite()){
+      <form class="creation-grid" (ngSubmit)="createMeeting()">
+        <label
+          >Título<input
+            name="title"
+            [(ngModel)]="meetingTitle"
+            required
+            maxlength="200" /></label
+        ><label
+          >Comité y período<select
+            name="committee"
+            [(ngModel)]="committeeId"
+            required
+          >
+            <option value="">Selecciona</option>
+            @for(c of committees();track c.id){
+            <option [value]="c.id">
+              {{c.name}} ·
+              {{c.valid_from|date:'yyyy'}}–{{c.valid_until|date:'yyyy'}}
+            </option>
+            }
+          </select></label
+        >
+        <label
+          >Fecha y hora<input
+            type="datetime-local"
+            name="scheduled"
+            [(ngModel)]="scheduled"
+            required /></label
+        ><label
+          >Lugar<input name="location" [(ngModel)]="location" required /></label
+        ><label class="full"
+          >Agenda<textarea
+            name="agenda"
+            [(ngModel)]="agenda"
+            required
+          ></textarea>
+        </label>
+        @if(!committees().length){
+        <p class="error">
+          Esta faena no tiene un comité. Registra su período antes de programar
+          reuniones.
+        </p>
+        }
+        <button class="primary" [disabled]="busy()||!committeeId">
+          Crear reunión
+        </button>
+      </form>
+      }
+      <div class="meeting-list">
+        @for(m of meetings();track m.id){<button
+          class="inspection-row"
+          [class.selected]="workspace()?.meeting?.id===m.id"
+          [disabled]="busy()"
+          (click)="openMeeting(m.id)"
+        >
+          <span class="row-copy"
+            ><strong>{{m.title}}</strong
+            ><small
+              >{{m.scheduled_at|date:'dd MMM yyyy, HH:mm'}} ·
+              {{m.location}}</small
+            ><small
+              >{{m.committee_name??'Registro anterior sin comité
+              vinculado'}}</small
+            ></span
+          ><span aria-hidden="true">→</span></button
+        >}@empty{
+        <div class="empty-state">
+          <h3>
+            {{busy()?'Cargando reuniones…':'Prepara el próximo encuentro'}}
+          </h3>
+          <p>Aquí aparecerán las reuniones de la faena seleccionada.</p>
+        </div>
+        }
+      </div>
+      <div class="pagination">
+        <button
+          class="secondary small"
+          [disabled]="page===1||busy()"
+          (click)="page=page-1;listMeetings()"
+        >
+          ← Anterior</button
+        ><span>Página {{page}}</span
+        ><button
+          class="secondary small"
+          [disabled]="page*20>=total||busy()"
+          (click)="page=page+1;listMeetings()"
+        >
+          Siguiente →
+        </button>
+      </div>
+    </section>
+    } @if(workspace();as w){
+    <section class="panel detail-panel">
+      <div class="detail-nav-bar">
+        <button type="button" class="back-nav-btn" (click)="closeMeeting()">
+          ← Volver a reuniones
+        </button>
+        <a routerLink="/gestion" class="back-nav-link">
+          ← Ir a Resumen
+        </a>
+      </div>
+      <div class="detail-heading">
+        <div>
+          <span class="eyebrow">EXPEDIENTE DE REUNIÓN</span>
+          <h2>{{w.meeting.title}}</h2>
+          <p>
+            {{w.meeting.scheduled_at|date:'dd MMM yyyy, HH:mm'}} ·
+            {{w.meeting.location}}
+          </p>
+        </div>
+        @if(dirty()){<span class="status">Borrador local sin guardar</span>}
+      </div>
+      @if(!w.meeting.committee_id&&canWrite()){
+      <div class="definition">
+        <p>
+          Este registro anterior no tiene comité confirmado. Puedes vincularlo
+          sin reemplazar su acta.
+        </p>
+        <label
+          >Comité y período<select [(ngModel)]="committeeLinkId">
+            <option value="">Selecciona el comité correspondiente</option>
+            @for(c of committees();track c.id){
+            <option [value]="c.id">
+              {{c.name}} ·
+              {{c.valid_from|date:'yyyy'}}–{{c.valid_until|date:'yyyy'}}
+            </option>
+            }
+          </select></label
+        ><button
+          class="secondary"
+          [disabled]="busy()||!committeeLinkId"
+          (click)="linkCommittee()"
+        >
+          Vincular comité
+        </button>
+      </div>
+      }
+      <nav class="detail-tabs" aria-label="Secciones de reunión">
+        @for(tab of tabs;track tab.id){<button
+          [class.active]="activeTab===tab.id"
+          [attr.aria-current]="activeTab===tab.id?'page':null"
+          (click)="activeTab=tab.id"
+        >
+          {{tab.label}}</button
+        >}
+      </nav>
+      @if(activeTab==='agenda'){
+      <div class="reading-panel">
+        <span class="eyebrow">TEMAS DEL ENCUENTRO</span>
+        <h3>Agenda</h3>
+        <p class="pre-wrap">{{w.meeting.agenda}}</p>
+        <p class="muted">
+          Comité: {{w.meeting.committee_name??'Sin vinculación histórica
+          confirmada'}}
+        </p>
+      </div>
+      <button class="primary" (click)="activeTab='acta'">
+        {{w.minute?'Consultar acta':'Preparar acta'}} →</button
+      >} @if(activeTab==='acta'){ @if(w.minute){
+      <div class="section-heading">
+        <div>
+          <h3>Acta · versión {{w.minute.version}}</h3>
+          <p>
+            {{w.minute.status==='DRAFT'?'Borrador':'En revisión'}} · Sin firma
+            electrónica
+          </p>
+        </div>
+      </div>
+      } @else{
+      <h3>Preparar acta borrador</h3>
+      } @if(dirty()){
+      <p role="status" class="draft-notice">
+        Tu texto se conserva en esta sesión del navegador. Aún no está guardado
+        en el servidor.
+      </p>
+      } @if(conflict()){
+      <div role="alert" class="conflict-panel">
+        <h3>Hay una versión más reciente</h3>
+        <p>
+          Conservamos tu edición. Compara el contenido del servidor antes de
+          volver a guardar.
+        </p>
+        <details>
+          <summary>Ver versión del servidor · {{w.minute?.version}}</summary>
+          <p class="pre-wrap">{{w.minute?.content}}</p>
+        </details>
+        <button class="secondary" (click)="rebaseDraft()">
+          Conservar mi texto y usar la versión actual como base
+        </button>
+      </div>
+      }
+      <label
+        >{{w.minute?'Contenido del acta':'Notas de la reunión'}}<textarea
+          class="document-editor"
+          maxlength="10000"
+          [(ngModel)]="content"
+          [readOnly]="!canWrite()"
+          [attr.aria-label]="w.minute?'Contenido del acta':'Notas de la reunión'"
+        ></textarea>
+      </label>
+      @if(canWrite()){
+      <div class="action-buttons">
+        @if(w.minute){<button
+          class="primary"
+          [disabled]="busy()||conflict()"
+          (click)="saveMinute('DRAFT')"
+        >
+          Guardar borrador</button
+        ><button
+          class="secondary"
+          [disabled]="busy()||conflict()"
+          (click)="saveMinute('IN_REVIEW')"
+        >
+          Enviar a revisión</button
+        >}@else{<button
+          class="primary"
+          [disabled]="busy()"
+          (click)="generateMinute()"
+        >
+          Generar acta borrador</button
+        >}
+      </div>
+      } @if(w.minute){
+      <details class="revision-section">
+        <summary (click)="loadRevisions()">
+          Consultar versiones anteriores
+        </summary>
+        @for(r of revisions();track r.version){
+        <blockquote>
+          <strong
+            >Versión {{r.version}} · {{r.status==='IN_REVIEW'?'En
+            revisión':r.status==='DRAFT'?'Borrador':'Estado histórico no
+            registrado'}}</strong
+          >
+          <p class="pre-wrap">{{r.content}}</p>
+          <small
+            >{{r.actor_name??userName(r.actor_id)}} ·
+            {{r.created_at|date:'short'}}</small
+          >
+        </blockquote>
+        }
+        <div class="pagination">
+          <button
+            class="secondary small"
+            [disabled]="revisionPage===1||busy()"
+            (click)="revisionPage=revisionPage-1;loadRevisions()"
+          >
+            Anterior</button
+          ><span>Página {{revisionPage}}</span
+          ><button
+            class="secondary small"
+            [disabled]="revisionPage*20>=revisionTotal||busy()"
+            (click)="revisionPage=revisionPage+1;loadRevisions()"
+          >
+            Siguiente
+          </button>
+        </div>
+      </details>
+      } } @if(activeTab==='acuerdos'){
+      <div class="section-heading">
+        <div>
+          <h3>Compromisos del encuentro</h3>
+          <p>Cada acuerdo conserva su responsable y fecha.</p>
+        </div>
+      </div>
+      @if(w.minute){@if(canWrite()){
+      <details class="action-composer">
+        <summary>＋ Agregar acuerdo</summary>
+        <form (ngSubmit)="createAgreement()">
+          <label
+            >Acuerdo<input
+              name="agreement"
+              [(ngModel)]="agreementTitle"
+              required
+          /></label>
+          <div class="field-grid">
+            <label
+              >Responsable<select name="owner" [(ngModel)]="owner" required>
+                @for(u of owners();track u.id){
+                <option [value]="u.id">{{u.name}}</option>
+                }
+              </select></label
+            ><label
+              >Fecha comprometida<input
+                type="date"
+                name="due"
+                [(ngModel)]="due"
+                required
+            /></label>
+          </div>
+          <button class="primary" [disabled]="busy()">Agregar acuerdo</button>
+        </form>
+      </details>
+      } @for(a of w.agreements;track a.id){
+      <article class="action" [class.closed]="a.status==='COMPLETED'">
+        <div class="action-heading">
+          <div>
+            <h4>{{a.title}}</h4>
+            <p>{{userName(a.owner_id)}} · {{a.due_on|date:'dd MMM yyyy'}}</p>
+          </div>
+          <span
+            class="status"
+            [attr.data-status]="a.status==='COMPLETED'?'CLOSED':a.status"
+            >{{agreementLabel(a.status)}}</span
+          >
+        </div>
+        @if(canWrite()&&a.status!=='COMPLETED'){<button
+          class="secondary small"
+          [disabled]="busy()"
+          (click)="advanceAgreement(a)"
+        >
+          {{a.status==='PENDING'?'Iniciar acuerdo':'Completar acuerdo'}}</button
+        >}
+      </article>
+      }@empty{
+      <p class="muted">Esta acta aún no tiene acuerdos.</p>
+      }
+      <div class="pagination">
+        <button
+          class="secondary small"
+          [disabled]="agreementPage===1||busy()"
+          (click)="agreementPage=agreementPage-1;refreshWorkspace()"
+        >
+          Anterior</button
+        ><span>Página {{agreementPage}}</span
+        ><button
+          class="secondary small"
+          [disabled]="agreementPage*20>=w.agreementsPage.total||busy()"
+          (click)="agreementPage=agreementPage+1;refreshWorkspace()"
+        >
+          Siguiente
+        </button>
+      </div>
+      }@else{
+      <div class="empty-state">
+        <h3>Primero prepara el acta</h3>
+        <p>Los acuerdos se vinculan al acta de esta reunión.</p>
+        <button class="secondary" (click)="activeTab='acta'">
+          Preparar acta
+        </button>
+      </div>
+      } } @if(activeTab==='historial'){
+      <h3>Historial de cambios</h3>
+      <div class="timeline">
+        @for(h of w.history;track h.id){
+        <article>
+          <strong>{{historyLabel(h.event)}}</strong>
+          <p>{{h.actor_name}} · {{h.created_at|date:'dd MMM yyyy, HH:mm'}}</p>
+          @if(h.details['from']&&h.details['to']){<small
+            >{{stateLabel(h.details['from'])}} →
+            {{stateLabel(h.details['to'])}}</small
+          >}@if(h.details['toVersion']){<small
+            >Versión {{h.details['toVersion']}}</small
+          >}
+        </article>
+        }@empty{
+        <p class="muted">Sin cambios registrados.</p>
+        }
+      </div>
+      <div class="pagination">
+        <button
+          class="secondary small"
+          [disabled]="historyPage===1||busy()"
+          (click)="historyPage=historyPage-1;refreshWorkspace()"
+        >
+          Anterior</button
+        ><span>Página {{historyPage}}</span
+        ><button
+          class="secondary small"
+          [disabled]="historyPage*20>=w.historyPage.total||busy()"
+          (click)="historyPage=historyPage+1;refreshWorkspace()"
+        >
+          Siguiente
+        </button>
+      </div>
+      }
+    </section>
+    } } @if(pendingNavigation()){
+    <div class="dialog-backdrop">
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="draft-dialog-title"
+        class="panel draft-dialog"
+      >
+        <h2 id="draft-dialog-title">Tienes cambios sin guardar</h2>
+        <p>
+          {{retainAllowed?'Puedes conservar el borrador local y continuar, o
+          seguir editando.':'Al cerrar sesión se borran los borradores locales
+          de tu usuario.'}}
+        </p>
+        <div class="action-buttons">
+          <button autofocus class="primary" (click)="resolveNavigation('stay')">
+            Seguir editando</button
+          >@if(retainAllowed){<button
+            class="secondary"
+            (click)="resolveNavigation('keep')"
+          >
+            Conservar borrador y continuar</button
+          >}<button class="secondary" (click)="resolveNavigation('discard')">
+            Descartar y continuar
+          </button>
+        </div>
+      </section>
+    </div>
+    } @if(busy()){
+    <div role="status" class="feedback">
+      <span class="spinner"></span> Procesando…
+    </div>
+    } @if(error()){
+    <div role="alert" class="feedback error">
+      {{error()}}<button (click)="error.set('')" aria-label="Cerrar aviso">
+        ×
+      </button>
+    </div>
+    } @if(message()){
+    <div role="status" class="feedback success">
+      {{message()}}<button
+        (click)="message.set('')"
+        aria-label="Cerrar mensaje"
+      >
+        ×
+      </button>
+    </div>
+    }
+    <footer class="page-footer">
+      FAENALERT · Operación local con datos de prueba.
+    </footer>
+  </main>
+</div>

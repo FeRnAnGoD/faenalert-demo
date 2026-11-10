@@ -1,0 +1,68 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "projects": {
+    "faenalert": {
+      "projectType": "application",
+      "root": "",
+      "sourceRoot": "src",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "src/main.ts",
+            "index": "src/index.html",
+            "tsConfig": "tsconfig.json",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "public"
+              }
+            ],
+            "styles": [
+              "src/styles.css",
+              "src/responsive.css",
+              "src/app/catalog.css",
+              "src/app/chrome.css",
+              "src/app/workspace.css"
+            ],
+            "outputPath": "dist/faenalert"
+          },
+          "configurations": {
+            "production": {
+              "outputHashing": "all",
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "400kb",
+                  "maximumError": "500kb"
+                }
+              ]
+            },
+            "development": {
+              "sourceMap": true,
+              "optimization": false,
+              "extractLicenses": false
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "options": {
+            "buildTarget": "faenalert:build"
+          },
+          "defaultConfiguration": "development",
+          "configurations": {
+            "development": {
+              "buildTarget": "faenalert:build:development"
+            },
+            "production": {
+              "buildTarget": "faenalert:build:production"
+            }
+          }
+        }
+      }
+    }
+  }
+}

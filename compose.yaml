@@ -1,0 +1,81 @@
+name: faenalert-enterprise-local
+services:
+  migrate:
+    profiles: [app]
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: build
+    working_dir: /app/apps/api
+    command: [node, node_modules/tsx/dist/cli.mjs, scripts/migrate.ts]
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-faenalert}
+    depends_on:
+      db:
+        condition: service_healthy
+  seed:
+    profiles: [app]
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: build
+    working_dir: /app/apps/api
+    command: [node, node_modules/tsx/dist/cli.mjs, scripts/seed.ts]
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-faenalert}
+      SEED_PASSWORD: ${SEED_PASSWORD:?Set SEED_PASSWORD in root .env for local demo users}
+      PROMO_VIEWER_PASSWORD: ${PROMO_VIEWER_PASSWORD:?Set PROMO_VIEWER_PASSWORD in root .env for the promotional read-only account}
+      FAENALERT_ADMIN_PASSWORD: ${FAENALERT_ADMIN_PASSWORD:?Set FAENALERT_ADMIN_PASSWORD in root .env for the branded admin account}
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+  api:
+    profiles: [app]
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      HOST: 0.0.0.0
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-faenalert}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in root .env for app profile}
+      CORS_ORIGIN: http://127.0.0.1:${WEB_PORT:-8080}
+      LOCAL_AUTH_ENABLED: 'true'
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3000/api/v1/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  web:
+    profiles: [app]
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports: ["127.0.0.1:${WEB_PORT:-8080}:8080"]
+    depends_on:
+      api:
+        condition: service_healthy
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?Copy .env.example to .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-faenalert}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-55432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+volumes:
+  postgres_data:

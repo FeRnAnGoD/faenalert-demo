@@ -1,0 +1,561 @@
+.auth-compact {
+  max-width: 520px;
+  margin: 40px auto;
+}
+.creation-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 22px;
+  padding: 20px;
+  margin: 16px 0;
+  background: #f6f9f6;
+  border: 1px solid #e0e9e2;
+  border-radius: 10px;
+}
+.full {
+  grid-column: 1/-1;
+}
+.detail-tabs {
+  display: flex;
+  gap: 20px;
+  border-bottom: 1px solid #dde6df;
+  margin-bottom: 24px;
+  overflow: auto;
+}
+.detail-tabs button {
+  background: transparent;
+  color: #607b68;
+  border-bottom: 3px solid transparent;
+  min-height: 48px;
+  padding: 8px 10px;
+  font-weight: 650;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.detail-tabs button.active {
+  color: #173d35;
+  border-color: #ec741e;
+}
+.document-editor {
+  min-height: 300px;
+  background: #fffdf8;
+  font-size: 15px;
+  line-height: 1.9;
+  padding: 24px;
+}
+.reading-panel {
+  max-width: 800px;
+  padding: 20px 0 30px;
+}
+.reading-panel h3 {
+  margin: 14px 0;
+}
+.pre-wrap {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.9;
+}
+.draft-notice {
+  padding: 12px 16px;
+  border-radius: 7px;
+  background: #fff3df;
+  color: #815a1a;
+  font-size: 12px;
+  margin: 15px 0;
+}
+.conflict-panel {
+  padding: 20px;
+  background: #fff1e8;
+  border: 1px solid #e6b694;
+  border-radius: 8px;
+}
+.conflict-panel p,
+.conflict-panel details {
+  margin: 12px 0;
+}
+.revision-section {
+  margin: 24px 0;
+}
+.revision-section summary {
+  cursor: pointer;
+  font-size: 13px;
+  color: #3c6b50;
+  padding: 12px 0;
+}
+.revision-section blockquote {
+  padding: 18px;
+  border-left: 3px solid #7da58a;
+  background: #f7faf7;
+  margin: 15px 0;
+}
+.revision-section small {
+  color: #67836e;
+}
+.timeline article {
+  border-left: 2px solid #c5d7c8;
+  padding: 4px 0 20px 20px;
+  margin-left: 8px;
+}
+.timeline p {
+  font-size: 12px;
+  color: #698373;
+  margin-top: 6px;
+}
+.timeline small {
+  display: block;
+  font-size: 12px;
+  color: #587960;
+  margin-top: 4px;
+}
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: #102d25aa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 20px;
+}
+.draft-dialog {
+  max-width: 650px;
+}
+.draft-dialog p {
+  margin: 18px 0;
+  line-height: 1.8;
+}
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin: 24px 0;
+}
+.summary-cards button {
+  text-align: left;
+  display: block;
+  background: white;
+  border: 1px solid #dce6de;
+  border-radius: 12px;
+  padding: 20px;
+}
+.summary-cards button.active {
+  border-color: #d07832;
+  box-shadow: 0 0 0 2px #ed741c22;
+}
+.summary-cards strong {
+  display: block;
+  font-size: 30px;
+  color: #163d30;
+}
+.summary-cards span {
+  display: block;
+  font-size: 12px;
+  color: #536f5c;
+  margin-top: 6px;
+}
+.table-scroll {
+  overflow: auto;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 13px;
+}
+th,
+td {
+  padding: 16px 14px;
+  border-bottom: 1px solid #e5ece6;
+  text-align: left;
+}
+th {
+  font-size: 11px;
+  color: #597160;
+  background: #f6f9f5;
+}
+td small {
+  display: block;
+  color: #607e67;
+  margin-top: 5px;
+}
+.overdue {
+  color: #a24829;
+  font-weight: 650;
+}
+.filters {
+  display: flex;
+  gap: 20px;
+  align-items: end;
+  flex-wrap: wrap;
+}
+.filters label {
+  min-width: 200px;
+}
+.definition {
+  font-size: 12px;
+  color: #52735d;
+  line-height: 1.8;
+  padding: 18px;
+  background: #f0f6ef;
+  border-radius: 8px;
+  margin: 18px 0;
+}
+.section-heading h2 {
+  font-size: 20px;
+}
+.muted,
+.section-heading p,
+.row-copy small,
+.metrics p > span,
+.local-note {
+  color: #587461;
+}
+.local-note {
+  font-size: 12px;
+  line-height: 1.8;
+}
+@media (max-width: 680px) {
+  .creation-grid {
+    grid-template-columns: 1fr;
+    padding: 15px;
+  }
+  .summary-cards {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .summary-cards button {
+    padding: 16px;
+  }
+  .summary-cards strong {
+    font-size: 26px;
+  }
+  .section-heading {
+    flex-wrap: wrap;
+  }
+  .section-heading > .primary {
+    width: 100%;
+  }
+  .detail-tabs {
+    gap: 8px;
+  }
+  .detail-tabs button {
+    font-size: 12px;
+  }
+  .document-editor {
+    padding: 15px;
+    min-height: 280px;
+  }
+  .draft-dialog .action-buttons {
+    flex-direction: column;
+  }
+  .filters label {
+    width: 100%;
+  }
+}
+
+
+.detail-nav-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e1ebe3;
+}
+.back-nav-btn,
+.back-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  background: #eef4f0;
+  color: #173d35;
+  border: 1px solid #d4e3d7;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.back-nav-btn:hover,
+.back-nav-link:hover {
+  background: #e2ede5;
+  color: #0e2e27;
+  border-color: #bad2bf;
+}
+
+/* Keep the connected workspace visually continuous with the CPHS mockup. */
+:host {
+  color: #203447;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+.prevention-app {
+  background: #f5f7f8;
+}
+.prevention-app.authenticated > fa-workspace-nav {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 40;
+  width: 230px;
+  height: 100vh;
+}
+.prevention-app.authenticated > .workspace {
+  width: calc(100% - 230px);
+  max-width: none;
+  min-height: 100vh;
+  margin: 0 0 0 230px;
+  padding: 36px 30px 28px;
+}
+.page-header h1,
+.summary-cards strong {
+  color: #143c6c;
+}
+.page-header[hidden] {
+  display: none;
+}
+.page-header h1 span {
+  color: #ed6a19;
+}
+.page-header p,
+.muted {
+  color: #70808c;
+}
+.eyebrow {
+  color: #748598;
+}
+.context-bar {
+  background: #0a1d35;
+}
+.metric-icon {
+  color: #164175;
+  background: #eaf0f6;
+}
+.welcome-copy {
+  background:
+    linear-gradient(110deg, #081627f5, #0b1f38c9),
+    url("/assets/faena-centinela.jpg") center/cover;
+}
+.panel {
+  border-color: #e5ebed;
+  border-radius: 10px;
+  box-shadow: 0 3px 12px #12263e0a;
+}
+@media (max-width: 900px) and (min-width: 681px) {
+  .prevention-app.authenticated > fa-workspace-nav {
+    width: 205px;
+  }
+  .prevention-app.authenticated > .workspace {
+    width: calc(100% - 205px);
+    margin-left: 205px;
+    padding: 28px 20px;
+  }
+}
+@media (max-width: 680px) {
+  .prevention-app.authenticated > fa-workspace-nav {
+    position: sticky;
+    width: 100%;
+    height: auto;
+  }
+  .prevention-app.authenticated > .workspace {
+    width: 100%;
+    min-height: calc(100vh - 92px);
+    margin: 0;
+    padding: 24px 16px;
+  }
+}
+
+.prevention-app:not(.authenticated) > .workspace {
+  width: 100%;
+  max-width: none;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+.prevention-app:not(.authenticated) > .workspace > fa-login-screen {
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+}
+.prevention-app:not(.authenticated) .page-footer,
+.prevention-app:not(.authenticated) .feedback.error,
+.prevention-app:not(.authenticated) .feedback.success {
+  display: none;
+}
+.login-screen {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 450px;
+  align-items: center;
+  gap: 80px;
+  width: 100%;
+  min-height: 100vh;
+  padding: 80px 12%;
+  background:
+    radial-gradient(ellipse at 12% 84%, #ed6b1726 0%, transparent 34%),
+    linear-gradient(100deg, #081a2dcc 0%, #0b1f38b8 52%, #062b3399 100%),
+    url("/assets/faenalert-prevencion-colaborativa.webp") center 57% / cover;
+  color: #fff;
+}
+.login-story .brand {
+  display: flex;
+  justify-content: flex-start;
+  padding: 0;
+  margin-bottom: 75px;
+  font-size: 36px;
+}
+.login-story .brand fa-brand {
+  transform: scale(1.35);
+  transform-origin: left center;
+}
+.login-story .eyebrow {
+  color: #f8bc91;
+}
+.login-story h1 {
+  margin: 0;
+  color: #fff;
+  font-size: 42px;
+  letter-spacing: -1px;
+  line-height: 1.2;
+}
+.login-story > p {
+  max-width: 430px;
+  margin-top: 22px;
+  color: #b5c1d0;
+  font-size: 14px;
+  line-height: 1.8;
+}
+.login-values {
+  display: flex;
+  flex-direction: column;
+  gap: 21px;
+  margin-top: 40px;
+  color: #c3cdda;
+  font-size: 12px;
+}
+.login-values > span {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.login-values fa-icon {
+  color: #ed8c38;
+}
+.login-card {
+  width: 100%;
+  padding: 38px;
+  border-radius: 14px;
+  background: #fff;
+  color: #253243;
+  box-shadow: 0 20px 80px #082d3566;
+}
+.login-card .label {
+  color: #8a999f;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.85px;
+}
+.login-card h2 {
+  margin: 14px 0;
+  font-size: 25px;
+}
+.login-card > p.muted {
+  margin-bottom: 0;
+  color: #73808c;
+}
+.login-card form {
+  margin-top: 28px;
+}
+.login-card label {
+  color: #394b5f;
+  font-size: 12px;
+}
+.login-card input {
+  border-color: #dce4e8;
+  background: #fff;
+  color: #253243;
+}
+.login-card input:focus {
+  border-color: #ed8c38;
+  box-shadow: 0 0 0 3px #ed8c3820;
+}
+.login-card .btn {
+  min-height: 43px;
+  margin-top: 8px;
+}
+.login-card .presentation-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 43px;
+  border: 1px solid #dce5e7;
+  border-radius: 7px;
+  background: #fff;
+  color: #29445e;
+  font-size: 12px;
+}
+.login-card .presentation-link:hover {
+  background: #f3f6f8;
+}
+.login-card .demo-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 25px;
+  padding-top: 18px;
+  border-top: 1px solid #e1e5e9;
+  color: #8c959f;
+  font-size: 10px;
+  line-height: 1.7;
+}
+@media (max-width: 1100px) {
+  .login-screen {
+    gap: 40px;
+    padding: 50px 6%;
+  }
+  .login-story h1 {
+    font-size: 36px;
+  }
+}
+@media (max-width: 900px) and (min-width: 701px) {
+  .login-screen {
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    padding: 40px;
+  }
+  .login-card {
+    padding: 25px;
+  }
+}
+@media (max-width: 700px) {
+  .login-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 30px;
+    padding: 30px 20px;
+  }
+  .login-story {
+    width: 100%;
+  }
+  .login-story .brand {
+    margin-bottom: 25px;
+  }
+  .login-story .brand fa-brand {
+    transform: scale(1.1);
+  }
+  .login-story h1 {
+    font-size: 29px;
+  }
+  .login-story > p {
+    font-size: 12px;
+  }
+  .login-values {
+    display: none;
+  }
+  .login-card {
+    padding: 27px;
+  }
+  .login-card h2 {
+    font-size: 24px;
+  }
+}

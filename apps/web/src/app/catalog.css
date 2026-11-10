@@ -1,0 +1,203 @@
+.catalog-public {
+  padding-top: 0;
+}
+
+.reference-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 18px 0 24px;
+}
+
+.reference-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #dce4e9;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 3px 14px #14283f0a;
+  transition: border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+.reference-card:hover {
+  transform: translateY(-2px);
+  border-color: #c3ced8;
+  box-shadow: 0 8px 22px #14283f12;
+}
+
+.reference-photo {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  background: #182d44;
+}
+
+.reference-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 220ms ease;
+}
+
+.reference-photo:hover img {
+  transform: scale(1.035);
+}
+
+.reference-photo:focus-visible,
+.reference-links a:focus-visible,
+.reference-credit a:focus-visible {
+  outline: 3px solid #f07821;
+  outline-offset: 2px;
+}
+
+.reference-type {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  max-width: calc(100% - 24px);
+  padding: 6px 8px;
+  border-radius: 5px;
+  background: #fff;
+  color: #24415c;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.reference-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 255px;
+  padding: 17px 18px 15px;
+}
+
+.reference-company {
+  width: fit-content;
+  color: #e36b1e;
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.reference-company:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.reference-body h2 {
+  margin: 7px 0 8px;
+  color: #102f52;
+  font-size: 19px;
+  line-height: 1.3;
+}
+
+.reference-body > p {
+  margin-bottom: 12px;
+  color: #657483;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.reference-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  color: #526b80;
+  font-size: 11px;
+}
+
+.reference-meta fa-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.reference-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0;
+}
+
+.reference-tags span {
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: #eef3f7;
+  color: #425a70;
+  font-size: 10px;
+}
+
+.reference-photo-caption {
+  display: block;
+  margin-top: 8px;
+  color: #75828c;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.reference-credit {
+  margin-top: 7px;
+  color: #74818b;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.reference-credit a {
+  color: #275a8a;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.reference-links {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 13px;
+  padding-top: 11px;
+  border-top: 1px solid #e7ecef;
+}
+
+.reference-links a {
+  color: #164574;
+  font-size: 10px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.reference-links a:hover {
+  color: #e36b1e;
+  text-decoration: underline;
+}
+
+.catalog-empty {
+  grid-column: 1 / -1;
+  padding: 28px;
+  border: 1px dashed #cbd6df;
+  border-radius: 9px;
+  color: #617283;
+  text-align: center;
+}
+
+@media (max-width: 1250px) {
+  .reference-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .reference-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .reference-body {
+    min-height: unset;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reference-card,
+  .reference-photo img {
+    transition: none;
+  }
+}
