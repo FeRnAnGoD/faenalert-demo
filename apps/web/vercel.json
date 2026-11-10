@@ -2,5 +2,15 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "pnpm run build",
   "installCommand": "pnpm install --frozen-lockfile",
-  "outputDirectory": "dist/faenalert/browser"
+  "outputDirectory": "dist/faenalert/browser",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://faenalert-api.onrender.com/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }
